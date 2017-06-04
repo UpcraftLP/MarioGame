@@ -1,0 +1,35 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+repositories {
+    mavenCentral()
+}
+
+
+sourceCompatibility = 1.8
+group 'upcraftlp.mariogame'
+version '1.0-SNAPSHOT'
+archivesBaseName="mariogame"
+mainClassName="upcraftlp.mariogame.MarioGame"
+
+task export(type: Copy) {
+    into "exportedLibs"
+    from configurations.runtime
+}
+
+dependencies {
+
+    compile "commons-cli:commons-cli:1.4"
+    compile "org.apache.logging.log4j:log4j-core:2.8.2"
+    compile "com.google.code.findbugs:jsr305:3.0.2"
+
+    jar {
+        jar.dependsOn(export)
+        manifest {
+            attributes(
+                    //'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                    'Main-Class': 'upcraftlp.mariogame.MarioGame'
+            )
+        }
+    }
+}
