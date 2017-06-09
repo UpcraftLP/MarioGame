@@ -1,6 +1,7 @@
 package upcraftlp.mariogame.util;
 
 import org.apache.logging.log4j.ThreadContext;
+import upcraftlp.mariogame.MarioGame;
 
 /**
  * (c)2017 UpcraftLP
@@ -8,6 +9,9 @@ import org.apache.logging.log4j.ThreadContext;
 public class Util {
 
     public static void setThreadname(String name) {
-        Thread.currentThread().setName(ThreadContext.get("side") + " THREAD/" + ThreadContext.get("name"));
+        String side = MarioGame.getSide().name();
+        ThreadContext.put("name", name);
+        ThreadContext.put("side", side);
+        Thread.currentThread().setName(side + " THREAD/" + name);
     }
 }

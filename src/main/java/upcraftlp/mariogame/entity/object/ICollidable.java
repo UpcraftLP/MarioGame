@@ -1,7 +1,7 @@
 package upcraftlp.mariogame.entity.object;
 
 import upcraftlp.mariogame.entity.Entity;
-import upcraftlp.mariogame.util.HitBox;
+import upcraftlp.mariogame.util.math.HitBox;
 
 /**
  * (c)2017 UpcraftLP
