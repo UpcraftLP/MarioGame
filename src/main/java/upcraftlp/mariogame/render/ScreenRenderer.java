@@ -2,17 +2,17 @@ package upcraftlp.mariogame.render;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import upcraftlp.mariogame.gui.Screen;
-import upcraftlp.mariogame.util.IShutdownListener;
+import upcraftlp.mariogame.MarioGame;
+import upcraftlp.mariogame.util.StoppableThread;
 import upcraftlp.mariogame.util.Util;
 
 /**
  * (c)2017 UpcraftLP
  */
-public class ScreenRenderer extends Thread implements IShutdownListener {
+public class ScreenRenderer extends StoppableThread {
 
-    private static final Logger log = LogManager.getLogger("Render");
-    private Screen mainwindow;
+    private final Logger log = LogManager.getLogger("Render");
+    private Screen mainwindow; //TODO needed?
 
     @Override
     public synchronized void start() {
@@ -23,12 +23,20 @@ public class ScreenRenderer extends Thread implements IShutdownListener {
     public void run() {
         Util.setThreadname("Render");
         log.info("initializing render engine...");
-        this.mainwindow = new Screen();
+        this.mainwindow = new Screen(MarioGame.getScreenResolution());
+        super.run();
     }
 
     @Override
-    public void shutdown() {
+    protected void exit() {
         log.info("stopping render engine..");
         //TODO shutdown renderer
+        super.exit();
     }
+
+    @Override
+    protected void runLoop() {
+        //TODO tick render engine
+    }
+
 }

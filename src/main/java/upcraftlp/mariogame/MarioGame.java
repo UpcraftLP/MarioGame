@@ -6,62 +6,90 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.ThreadContext;
 import upcraftlp.mariogame.render.ScreenRenderer;
-import upcraftlp.mariogame.util.IShutdownListener;
 import upcraftlp.mariogame.util.Side;
 import upcraftlp.mariogame.util.Util;
 import upcraftlp.mariogame.world.LevelProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.awt.*;
 
 /**
  * (c)2017 UpcraftLP
  */
-public class MarioGame implements IShutdownListener {
+public class MarioGame {
 
     private static MarioGame instance;
     private static final Options options = new Options();
-    private static final Logger log = LogManager.getLogger("Main");
+
+    private final Logger log = LogManager.getLogger("Main");
     private static Side SIDE = Side.CLIENT;
-    private final LevelProvider levelPovider;
+    private static Dimension resolution;
+    private final LevelProvider levelProvider;
     private final ScreenRenderer renderer;
-    private boolean shouldShutdown = false;
+    private volatile boolean shouldStop = false;
 
     static {
         options.addOption("h", "help", false, "dispaly this usage screen");
-        options.addOption("nogui", false, "start in headless mode");
+        options.addOption("nogui", false, "start in headless mode (ignored on client side)");
         options.addOption("s", "server", false, "start as server"); //TODO: server mode for multiplayer
+        options.addOption("r", "resolution", true, "set the display resolution, format: [WxH], ex: r=1920x1080");
     }
 
 
     public static void main(String[] args) {
         //TODO: bootstrap
+        Util.setThreadname("Main");
         CommandLineParser parser = new DefaultParser();
+        instance = new MarioGame(); //TODO side?
         try {
             CommandLine cmd = parser.parse(options, args);
             if(cmd.hasOption("s")) {
                 SIDE = Side.SERVER;
+                if(cmd.hasOption("nogui")) {
+                    //TODO headless mode
+                }
             }
+            if(cmd.hasOption("r")) {
+                String res = cmd.getOptionValue("r");
+                String[] display = res.split("x");
+                resolution = new Dimension(Integer.parseInt(display[0]), Integer.parseInt(display[1]));
+            }
+            else {
+                resolution = new Dimension(1920, 1080);  //TODO default??
+                System.out.println("no display resolution set, defaulting to " + resolution.getWidth() + "x" + resolution.getHeight() + "!");
+            }
+
         }
         catch (Throwable t) {
-            exit(1, t);
+            t.printStackTrace();
+            System.exit(1);
         }
-        ThreadContext.put("name", "Main");
-        ThreadContext.put("side", SIDE.name());
-        Util.setThreadname("Main");
-        instance = new MarioGame(); //TODO side?
-        log.info("Game initialized!");
+        instance.run();
     }
 
     private MarioGame() {
-        log.info("Starting up game...");
+        //NO-OP
         this.renderer = new ScreenRenderer();
-        this.levelPovider = new LevelProvider();
+        this.levelProvider = new LevelProvider();
+    }
+
+    public void run() {
+        log.info("Starting up game...");
         this.renderer.start();
-        this.levelPovider.start();
+        this.levelProvider.start();
+        log.info("Game initialized!");
         //TODO main game init and everything
+
+        while(!this.shouldStop) {
+
+        }
+        this.stop();
+    }
+
+    public static Dimension getScreenResolution() {
+        return resolution;
     }
 
     /**
@@ -73,18 +101,18 @@ public class MarioGame implements IShutdownListener {
     }
 
     public LevelProvider getLevelPovider() {
-        return this.levelPovider;
+        return this.levelProvider;
     }
 
     public ScreenRenderer getRenderEngine() {
         return this.renderer;
     }
 
-    public static void exit(int exitCode) {
+    public void exit(int exitCode) {
         exit(exitCode, null);
     }
 
-    public static void exit(int exitCode, @Nullable Throwable cause) {
+    public void exit(int exitCode, @Nullable Throwable cause) {
         if(exitCode == 0) {
             log.info("Program terminated successfully.");
         }
@@ -101,21 +129,19 @@ public class MarioGame implements IShutdownListener {
         System.exit(exitCode);
     }
 
-    public static Logger getLogger() {
-        return log;
-    }
-
     public static Side getSide() {
         return SIDE;
     }
 
-    @Override
-    public synchronized void shutdown() {
+    public void shutdown() {
+        this.shouldStop = true;
+    }
+
+    private void stop() {
         log.info("Stopping Game...");
         //TODO shutdown everything
         this.renderer.shutdown();
-        this.levelPovider.shutdown();
-        this.shouldShutdown = true;
+        this.levelProvider.shutdown();
         exit(0);
     }
 
