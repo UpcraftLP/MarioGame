@@ -1,11 +1,13 @@
 package upcraftlp.mariogame.render;
 
 import upcraftlp.mariogame.MarioGame;
-import upcraftlp.mariogame.gui.GuiMainMenu;
-import upcraftlp.mariogame.gui.GuiScreen;
+import upcraftlp.mariogame.gui.*;
+import upcraftlp.mariogame.gui.Button;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -14,31 +16,22 @@ import java.awt.event.WindowEvent;
  */
 public class Screen extends JFrame {
 
-    public Screen(Dimension resolution) {
+    public Screen() {
         this.setName("MarioGame");
-        this.setEnabled(true);
-        this.setVisible(true);
-        this.setSize(resolution);
+        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        this.setUndecorated(true);
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 MarioGame.getGame().shutdown();
             }
         });
-        this.setContentPane(new GuiMainMenu());
+        this.setVisible(true);
+        this.setEnabled(true);
+        this.getGlassPane().setVisible(true); //FIXME render screen in foreground layer!
     }
 
-    private GuiScreen currentScreen;
 
-    public void displayGuiScreen(GuiScreen screen) {
-        this.currentScreen = screen;
-    }
 
-    /**
-     * close the window after shutting down the game
-     */
-    public void onQuit() {
-        this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-    } //TODO why is this called on another thread??
 }

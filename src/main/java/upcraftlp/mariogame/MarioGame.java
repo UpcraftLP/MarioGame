@@ -6,6 +6,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import upcraftlp.mariogame.gui.*;
 import upcraftlp.mariogame.render.ScreenRenderer;
 import upcraftlp.mariogame.util.Side;
 import upcraftlp.mariogame.util.Util;
@@ -13,28 +14,28 @@ import upcraftlp.mariogame.world.LevelProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.awt.*;
+import java.awt.event.*;
 
 /**
  * (c)2017 UpcraftLP
  */
-public class MarioGame {
+public class MarioGame implements ActionListener, MouseListener, KeyListener {
 
     private static MarioGame instance;
     private static final Options options = new Options();
 
     private final Logger log = LogManager.getLogger("Main");
     private static Side SIDE = Side.CLIENT;
-    private static Dimension resolution;
     private final LevelProvider levelProvider;
     private final ScreenRenderer renderer;
     private volatile boolean shouldStop = false;
+    public GuiScreen currentScreen;
+    public boolean inGameHasFocus = true; //TODO focus!
 
     static {
         options.addOption("h", "help", false, "dispaly this usage screen");
         options.addOption("nogui", false, "start in headless mode (ignored on client side)");
         options.addOption("s", "server", false, "start as server"); //TODO: server mode for multiplayer
-        options.addOption("r", "resolution", true, "set the display resolution, format: [WxH], ex: r=1920x1080");
     }
 
 
@@ -51,16 +52,6 @@ public class MarioGame {
                     //TODO headless mode
                 }
             }
-            if(cmd.hasOption("r")) {
-                String res = cmd.getOptionValue("r");
-                String[] display = res.split("x");
-                resolution = new Dimension(Integer.parseInt(display[0]), Integer.parseInt(display[1]));
-            }
-            else {
-                resolution = new Dimension(1920, 1080);  //TODO default??
-                System.out.println("no display resolution set, defaulting to " + resolution.getWidth() + "x" + resolution.getHeight() + "!");
-            }
-
         }
         catch (Throwable t) {
             t.printStackTrace();
@@ -83,13 +74,11 @@ public class MarioGame {
         //TODO main game init and everything
 
         while(!this.shouldStop) {
+            //keep track of everything
+            //TODO networking?
 
         }
         this.stop();
-    }
-
-    public static Dimension getScreenResolution() {
-        return resolution;
     }
 
     /**
@@ -129,6 +118,13 @@ public class MarioGame {
         System.exit(exitCode);
     }
 
+    public void displayGuiScreen(GuiScreen newScreen) {
+        if(this.currentScreen != null) this.currentScreen.onClose();
+        this.currentScreen = newScreen;
+        if(this.currentScreen != null) this.currentScreen.initGui();
+        this.renderer.getMainWindow().repaint();
+    }
+
     public static Side getSide() {
         return SIDE;
     }
@@ -145,4 +141,76 @@ public class MarioGame {
         exit(0);
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if(this.currentScreen != null) {
+            if(e.getSource() instanceof Button) {
+                this.currentScreen.actionPerformed((Button) e.getSource());
+            }
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        if(inGameHasFocus) {
+            if(this.currentScreen != null) this.currentScreen.keyTyped(e.getKeyChar(), e.getKeyCode());
+            else this.renderer.keyTyped(e.getKeyChar(), e.getKeyCode());
+        }
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if(inGameHasFocus) {
+            if(this.currentScreen != null) this.currentScreen.keyPressed(e.getKeyChar(), e.getKeyCode());
+            else this.renderer.keyPressed(e.getKeyChar(), e.getKeyCode());
+        }
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        if(inGameHasFocus) {
+            if(this.currentScreen != null) this.currentScreen.keyReleased(e.getKeyChar(), e.getKeyCode());
+            else this.renderer.keyReleased(e.getKeyChar(), e.getKeyCode());
+        }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if(inGameHasFocus) {
+            if(this.currentScreen != null) this.currentScreen.mouseClicked(e.getX(), e.getY(), e.getButton());
+            else this.renderer.mouseClicked(e.getX(), e.getY(), e.getButton());
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        if(inGameHasFocus) {
+            if(this.currentScreen != null) this.currentScreen.mousePressed(e.getX(), e.getY(), e.getButton());
+            else this.renderer.mousePressed(e.getX(), e.getY(), e.getButton());
+        }
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        if(inGameHasFocus) {
+            if(this.currentScreen != null) this.currentScreen.mouseReleased(e.getX(), e.getY(), e.getButton());
+            else this.renderer.mouseReleased(e.getX(), e.getY(), e.getButton());
+        }
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        if(inGameHasFocus) {
+            //TODO
+        }
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        if(inGameHasFocus) {
+            //TODO
+        }
+    }
 }

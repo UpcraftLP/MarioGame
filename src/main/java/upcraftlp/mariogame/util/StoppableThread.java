@@ -7,6 +7,7 @@ public abstract class StoppableThread extends Thread {
 
     private volatile boolean shouldStop = false;
     private volatile boolean isRunning = false;
+    private int toTick = 0;
 
     @Override
     public synchronized void start() {
@@ -18,7 +19,10 @@ public abstract class StoppableThread extends Thread {
     public void run() {
         super.run();
         while(!this.shouldStop) {
-            this.runLoop();
+            if(System.currentTimeMillis() % 50 == 0) toTick++;
+            for(; toTick > 0; toTick--) {
+                this.runLoop();
+            }
         }
         this.exit();
     }
