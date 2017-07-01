@@ -122,6 +122,7 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
         if(this.currentScreen != null) this.currentScreen.onClose();
         this.currentScreen = newScreen;
         if(this.currentScreen != null) this.currentScreen.initGui();
+        this.renderer.markDirty();
         this.renderer.getMainWindow().repaint();
     }
 

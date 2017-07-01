@@ -18,6 +18,12 @@ public class ScreenRenderer extends StoppableThread implements IMouseListener, I
 
     private final Logger log = LogManager.getLogger("Render");
     private Screen mainWindow;
+    private boolean isDirty;
+    private int ticks = 0;
+
+    public void markDirty() {
+        this.isDirty = true;
+    }
 
     @Override
     public synchronized void start() {
@@ -47,9 +53,10 @@ public class ScreenRenderer extends StoppableThread implements IMouseListener, I
         Point mouseLoc = info.getLocation();
 
         //TODO ingame rendering
-        if(MarioGame.getGame().currentScreen != null) {
+        if(MarioGame.getGame().currentScreen != null && (this.isDirty || ticks++ % 20 == 0)) {
             this.getMainWindow().getGraphics().clearRect(0, 0, this.getMainWindow().getWidth(), this.getMainWindow().getHeight());
             MarioGame.getGame().currentScreen.drawScreen((int) mouseLoc.getX(), (int) mouseLoc.getY(), 0); //TODO partialTicks
+            this.isDirty = false;
         }
     }
 

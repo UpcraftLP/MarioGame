@@ -50,7 +50,7 @@ public class Gui {
     }
 
     public void drawModalRect(int x, int y, int width, int height, Color c) {
-        Graphics g = DELEGATE.getGraphics();
+        Graphics g = DELEGATE.getLayeredPane().getGraphics();
         g.setColor(c);
         g.fillRect(x, y, width, height);
     }
