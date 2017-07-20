@@ -5,9 +5,13 @@ package upcraftlp.mariogame.util;
  */
 public abstract class StoppableThread extends Thread {
 
+    /**
+     * how many ticks per second.
+     * 0 disables the check.
+     */
+    protected int ticksPerSecond = 20;
     private volatile boolean shouldStop = false;
     private volatile boolean isRunning = false;
-    private int toTick = 0;
 
     @Override
     public synchronized void start() {
@@ -18,9 +22,8 @@ public abstract class StoppableThread extends Thread {
     @Override
     public void run() {
         super.run();
-        while(!this.shouldStop) {
-            if(System.currentTimeMillis() % 50 == 0) toTick++;
-            for(; toTick > 0; toTick--) {
+        while(!this.shouldStop) { //TODO tick watchdog
+            if(this.ticksPerSecond == 0 || SysUtils.getTime() % (1000 / this.ticksPerSecond) == 0) {
                 this.runLoop();
             }
         }

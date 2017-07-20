@@ -29,9 +29,14 @@ public class Screen extends JFrame {
         });
         this.setVisible(true);
         this.setEnabled(true);
+        this.addKeyListener(MarioGame.getGame());
+        this.addMouseListener(MarioGame.getGame());
         this.getGlassPane().setVisible(true); //FIXME render screen in foreground layer!
     }
 
-
-
+    @Override
+    public void setSize(int width, int height) {
+        if(MarioGame.getGame().currentScreen != null) MarioGame.getGame().currentScreen.setDimensions(width, height);
+        super.setSize(width, height);
+    }
 }

@@ -1,6 +1,7 @@
 package upcraftlp.mariogame.gui;
 
 import upcraftlp.mariogame.MarioGame;
+import upcraftlp.mariogame.render.ScreenRenderer;
 
 import javax.swing.*;
 
@@ -9,9 +10,14 @@ import javax.swing.*;
  */
 public class GuiMainMenu extends GuiScreen {
 
-    public GuiMainMenu() {
+    @Override
+    public void initGui() {
+        super.initGui();
         //TODO draw everything: sp, mp, lang, options and quit
-        this.addButton(new Button(0, 100, 200, "Quit"));
+        this.addButton(new Button(2, this.width / 2 - 100, this.height / 2, "Singleplayer"));
+        this.addButton(new Button(3, this.width/ 2 - 100, this.height / 2 + 30, "Multiplayer"));
+        this.addButton(new Button(1, this.width / 2 - 100, this.height / 2 + 60, "Options"));
+        this.addButton(new Button(0, this.width / 2 - 100, this.height / 2 + 90, "Quit")); //FIXME caption does not render correctly!
     }
 
     @Override
@@ -22,11 +28,11 @@ public class GuiMainMenu extends GuiScreen {
                 MarioGame.getGame().shutdown();
                 break;
             case 1: //options
+                log.error("no options page yet!");
                 break;
             case 2: //sp
             case 3: //mp
-                //JOptionPane.showMessageDialog(this, "not implemented yet!");
-                //TODO showMessage on main screen!
+                MarioGame.error("Not implemented yet!");
                 break;
         }
     }

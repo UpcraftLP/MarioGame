@@ -6,7 +6,7 @@ import upcraftlp.mariogame.MarioGame;
 /**
  * (c)2017 UpcraftLP
  */
-public class Util {
+public class SysUtils {
 
     public static void setThreadname(String name) {
         String side = MarioGame.getSide().name();
@@ -14,4 +14,14 @@ public class Util {
         ThreadContext.put("side", side);
         Thread.currentThread().setName(side + " THREAD/" + name);
     }
+
+    /**
+     * Get the time in milliseconds
+     *
+     * @return The system time in milliseconds
+     */
+    public static long getTime() {
+        return System.nanoTime() / 1000000;
+    }
+
 }

@@ -40,7 +40,6 @@ public class Button extends JButton {
 
     @Override
     public void doClick() {
-        System.out.println("click1");
         super.doClick();
     }
 }

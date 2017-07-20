@@ -7,9 +7,11 @@ import upcraftlp.mariogame.gui.GuiMainMenu;
 import upcraftlp.mariogame.util.IKeyListener;
 import upcraftlp.mariogame.util.IMouseListener;
 import upcraftlp.mariogame.util.StoppableThread;
-import upcraftlp.mariogame.util.Util;
+import upcraftlp.mariogame.util.SysUtils;
 
 import java.awt.*;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * (c)2017 UpcraftLP
@@ -18,21 +20,18 @@ public class ScreenRenderer extends StoppableThread implements IMouseListener, I
 
     private final Logger log = LogManager.getLogger("Render");
     private Screen mainWindow;
-    private boolean isDirty;
-    private int ticks = 0;
-
-    public void markDirty() {
-        this.isDirty = true;
-    }
+    private int partialTicks = 0;
+    private LinkedList<ITickable> renderingFragments = new LinkedList<>();
 
     @Override
     public synchronized void start() {
+        //TODO tick @60FPS
         super.start();
     }
 
     @Override
     public void run() {
-        Util.setThreadname("Render");
+        SysUtils.setThreadname("Render");
         log.info("initializing render engine...");
         this.mainWindow = new Screen();
         MarioGame.getGame().displayGuiScreen(new GuiMainMenu());
@@ -48,16 +47,47 @@ public class ScreenRenderer extends StoppableThread implements IMouseListener, I
 
     @Override
     protected void runLoop() {
-        if(!MarioGame.getGame().inGameHasFocus) return;
-        PointerInfo info = MouseInfo.getPointerInfo();
-        Point mouseLoc = info.getLocation();
-
-        //TODO ingame rendering
-        if(MarioGame.getGame().currentScreen != null && (this.isDirty || ticks++ % 20 == 0)) {
-            this.getMainWindow().getGraphics().clearRect(0, 0, this.getMainWindow().getWidth(), this.getMainWindow().getHeight());
-            MarioGame.getGame().currentScreen.drawScreen((int) mouseLoc.getX(), (int) mouseLoc.getY(), 0); //TODO partialTicks
-            this.isDirty = false;
+        if(this.partialTicks >= 20) {
+            this.partialTicks = 0; //new second! //TODO FPS info!
         }
+        if(MarioGame.getGame().inGameHasFocus) {
+            this.getMainWindow().getGraphics().clearRect(0, 0, this.getMainWindow().getWidth(), this.getMainWindow().getHeight()); //clear everything so we have a blank canvas
+            Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
+
+            int mouseX = (int) mouseLoc.getX();
+            int mouseY = (int) mouseLoc.getY();
+            synchronized (this.renderingFragments) {
+                Iterator<ITickable> iterator = this.renderingFragments.iterator();
+                while(iterator.hasNext()) {
+                    ITickable tickable = iterator.next();
+                    if(tickable.hasExpired()) {
+                        iterator.remove();
+                        continue;
+                    }
+                    tickable.tick();
+                    tickable.draw(mouseX, mouseY); //TODO call every render tick!
+                }
+            }
+            MarioGame.getGame().currentScreen.drawScreen(mouseX, mouseY, this.partialTicks); //TODO partialTicks
+        }
+
+        //TODO do your ingame rendering here
+
+        this.partialTicks++;
+    }
+
+    /**
+     * used to add another rendering tick listener
+     * be warned that the {@link ITickable} may remain in memory infinitely if it doesn't handle it's expiration!
+     */
+    public void addTickListener(ITickable tickable) {
+        synchronized (this.renderingFragments) {
+            this.renderingFragments.add(tickable);
+        }
+    }
+
+    public Logger getLogger() {
+        return this.log;
     }
 
     public Screen getMainWindow() {

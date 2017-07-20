@@ -3,7 +3,7 @@ package upcraftlp.mariogame.world;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import upcraftlp.mariogame.util.StoppableThread;
-import upcraftlp.mariogame.util.Util;
+import upcraftlp.mariogame.util.SysUtils;
 
 /**
  * (c)2017 UpcraftLP
@@ -11,19 +11,20 @@ import upcraftlp.mariogame.util.Util;
 public class LevelProvider extends StoppableThread {
     //load, unload and save worlds
 
+    private World currentWorld;
     private final Logger log = LogManager.getLogger("Level");
 
     @Override
     public synchronized void start() {
         super.start();
-        //TODO look for levels
-
     }
 
     @Override
     public void run() {
-        Util.setThreadname("Level");
+        SysUtils.setThreadname("Level");
         log.info("Scanning for levels...");
+        //TODO look for levels
+        LevelLoader.discoverLevels();
         super.run();
     }
 
@@ -37,6 +38,18 @@ public class LevelProvider extends StoppableThread {
     @Override
     protected void runLoop() {
         //TODO tick game
+    }
+
+    public void loadLevel(ILevelReference levelReference) {
+        if(levelReference instanceof LevelLocal) {
+            LevelLocal level = (LevelLocal) levelReference;
+            this.currentWorld = level.createLevelInstance();
+        }
+        //TODO multiplayer level?
+    }
+
+    public Logger getLogger() {
+        return this.log;
     }
 
 }

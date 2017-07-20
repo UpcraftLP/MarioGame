@@ -13,38 +13,33 @@ import java.util.List;
  */
 public class GuiScreen extends Gui implements IKeyListener, IMouseListener {
 
-    private List<Button> buttonlist = new ArrayList<Button>();
+    protected List<Button> buttonList = new ArrayList<Button>();
 
     public void actionPerformed(Button button) {
-        System.out.println("click2");
+
     }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, int partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
-        for(Button button : this.buttonlist) {
+        for(Button button : this.buttonList) {
             if(button.isVisible()) {
-                if(button.isEnabled()) drawModalRect(button.getX(), button.getY(), button.getWidth(), button.getHeight(), Color.LIGHT_GRAY);
-                else drawModalRect(button.getX(), button.getY(), button.getWidth(), button.getHeight(), Color.DARK_GRAY);
-                Font f = MarioGame.getGame().getRenderEngine().getMainWindow().getFont();
-                drawString(button.getText(), button.getX() + button.getWidth() / 2 - button.getText().length(), button.getY() + button.getHeight() / 2 - f.getSize() / 2, button.isEnabled() ? Color.DARK_GRAY : Color.LIGHT_GRAY);
+                drawModalRect(button.getX(), button.getY(), button.getWidth(), button.getHeight(), button.isEnabled() ? Color.LIGHT_GRAY : Color.DARK_GRAY);
+                drawString(button.getText(), button.getX() + button.getWidth() / 2 - getStringSize(button.getText()) / 2, button.getY() + button.getHeight() / 2 + getFontHeight()/4, button.isEnabled() ? Color.DARK_GRAY : Color.LIGHT_GRAY);
             }
         }
     }
 
+    @Override
     public void initGui() {
-        //NO-OP
-    }
-
-    public void onClose() {
-        //NO-OP
+        this.buttonList.clear();
     }
 
     public void addButton(Button button) {
         button.addActionListener(MarioGame.getGame());
         button.addKeyListener(MarioGame.getGame());
         button.addMouseListener(MarioGame.getGame());
-        this.buttonlist.add(button);
+        this.buttonList.add(button);
     }
 
     @Override
@@ -64,8 +59,7 @@ public class GuiScreen extends Gui implements IKeyListener, IMouseListener {
 
     @Override
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        System.out.println("click23");
-        for(Button button : this.buttonlist) {
+        for(Button button : this.buttonList) {
             int x = button.getX();
             int y = button.getY();
             if(mouseX > x && mouseX < x + button.getWidth() && mouseY > y && mouseY < y + button.getHeight()) this.actionPerformed(button);

@@ -1,20 +1,21 @@
 package upcraftlp.mariogame;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import upcraftlp.mariogame.gui.*;
+import upcraftlp.mariogame.gui.Button;
+import upcraftlp.mariogame.gui.GuiScreen;
+import upcraftlp.mariogame.render.Screen;
 import upcraftlp.mariogame.render.ScreenRenderer;
+import upcraftlp.mariogame.render.tickable.TickableSlide;
 import upcraftlp.mariogame.util.Side;
-import upcraftlp.mariogame.util.Util;
+import upcraftlp.mariogame.util.SysUtils;
 import upcraftlp.mariogame.world.LevelProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.event.*;
+import java.io.File;
 
 /**
  * (c)2017 UpcraftLP
@@ -31,17 +32,19 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
     private volatile boolean shouldStop = false;
     public GuiScreen currentScreen;
     public boolean inGameHasFocus = true; //TODO focus!
+    private static File gameDirectory;
 
     static {
         options.addOption("h", "help", false, "dispaly this usage screen");
         options.addOption("nogui", false, "start in headless mode (ignored on client side)");
         options.addOption("s", "server", false, "start as server"); //TODO: server mode for multiplayer
+        options.addOption(Option.builder("d").longOpt("dir").hasArg().desc("the save directory").required().build());
     }
 
 
     public static void main(String[] args) {
         //TODO: bootstrap
-        Util.setThreadname("Main");
+        SysUtils.setThreadname("Main");
         CommandLineParser parser = new DefaultParser();
         instance = new MarioGame(); //TODO side?
         try {
@@ -52,6 +55,7 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
                     //TODO headless mode
                 }
             }
+            gameDirectory = new File(cmd.getOptionValue("d"));
         }
         catch (Throwable t) {
             t.printStackTrace();
@@ -79,6 +83,13 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
 
         }
         this.stop();
+    }
+
+    /**
+     * @return the main game directory
+     */
+    public static File getGameDirectory() {
+        return gameDirectory;
     }
 
     /**
@@ -121,9 +132,8 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
     public void displayGuiScreen(GuiScreen newScreen) {
         if(this.currentScreen != null) this.currentScreen.onClose();
         this.currentScreen = newScreen;
-        if(this.currentScreen != null) this.currentScreen.initGui();
-        this.renderer.markDirty();
-        this.renderer.getMainWindow().repaint();
+        Screen mainWindow = this.renderer.getMainWindow();
+        if(this.currentScreen != null) this.currentScreen.setDimensions(mainWindow.getWidth(), mainWindow.getHeight());
     }
 
     public static Side getSide() {
@@ -214,4 +224,21 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
             //TODO
         }
     }
+
+    public Logger getLogger() {
+        return this.log;
+    }
+
+    public static void error(String message, String title) {
+        getGame().getRenderEngine().addTickListener(new TickableSlide("Error:\nNot implemented yet!"));
+
+        //TODO this is a popup!
+        //JOptionPane.showMessageDialog(MarioGame.getGame().getRenderEngine().getMainWindow(), message, title, JOptionPane.ERROR_MESSAGE);
+    }
+
+    public static void error(String message) {
+        //TODO no popup, but fancy slide instead!
+        error(message, "Error");
+    }
+
 }
