@@ -3,6 +3,10 @@ apply plugin: 'application'
 
 repositories {
     mavenCentral()
+    maven {
+        name = "Google Gson"
+        url = "https://mavenrepository.com/artifact/com.google.code.gson/gson"
+    }
 }
 
 
@@ -22,6 +26,7 @@ dependencies {
     compile "commons-cli:commons-cli:1.4"
     compile "org.apache.logging.log4j:log4j-core:2.8.2"
     compile "com.google.code.findbugs:jsr305:3.0.2"
+    compile "com.google.code.gson:gson:2.8.1"
 
     jar {
         jar.dependsOn(export)
