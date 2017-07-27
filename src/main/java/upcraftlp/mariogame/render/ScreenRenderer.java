@@ -3,6 +3,7 @@ package upcraftlp.mariogame.render;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import upcraftlp.mariogame.MarioGame;
+import upcraftlp.mariogame.gui.Gui;
 import upcraftlp.mariogame.gui.GuiMainMenu;
 import upcraftlp.mariogame.util.IKeyListener;
 import upcraftlp.mariogame.util.IMouseListener;
@@ -21,7 +22,7 @@ public class ScreenRenderer extends StoppableThread implements IMouseListener, I
     private final Logger log = LogManager.getLogger("Render");
     private Screen mainWindow;
     private int partialTicks = 0;
-    private LinkedList<ITickable> renderingFragments = new LinkedList<>();
+    private final LinkedList<ITickable> renderingFragments = new LinkedList<>();
 
     @Override
     public synchronized void start() {
@@ -47,16 +48,17 @@ public class ScreenRenderer extends StoppableThread implements IMouseListener, I
 
     @Override
     protected void runLoop() {
-        if(this.partialTicks >= 20) {
-            this.partialTicks = 0; //new second! //TODO FPS info!
-        }
-        if(MarioGame.getGame().inGameHasFocus) {
+        if(MarioGame.inGameHasFocus()) {
             this.getMainWindow().getGraphics().clearRect(0, 0, this.getMainWindow().getWidth(), this.getMainWindow().getHeight()); //clear everything so we have a blank canvas
             Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
-
             int mouseX = (int) mouseLoc.getX();
             int mouseY = (int) mouseLoc.getY();
-            synchronized (this.renderingFragments) {
+            MarioGame.getGame().currentScreen.drawScreen(mouseX, mouseY, this.partialTicks); //TODO partialTicks
+            Gui.drawString("", 0, 0); //TODO why is this needed to display all text correctly??!
+
+            //TODO do your ingame rendering here
+
+            synchronized (this.renderingFragments) { //draw slides AFTER everything else
                 Iterator<ITickable> iterator = this.renderingFragments.iterator();
                 while(iterator.hasNext()) {
                     ITickable tickable = iterator.next();
@@ -68,12 +70,7 @@ public class ScreenRenderer extends StoppableThread implements IMouseListener, I
                     tickable.draw(mouseX, mouseY); //TODO call every render tick!
                 }
             }
-            MarioGame.getGame().currentScreen.drawScreen(mouseX, mouseY, this.partialTicks); //TODO partialTicks
         }
-
-        //TODO do your ingame rendering here
-
-        this.partialTicks++;
     }
 
     /**

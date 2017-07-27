@@ -39,14 +39,14 @@ public class TickableSlide implements ITickable {
 
     @Override
     public void tick() {
-        if(ticksExisted < lifespan / 5) {
-            this.x -= this.width / 20; //move in
+        if(ticksExisted < lifespan / 10) { //move in
+            this.x -= this.width / 10;
         }
         else if(ticksExisted < lifespan * 0.8F) {
             //just stay there
         }
-        else {
-            this.x += this.width / 20; //move out
+        else { //move out
+            this.x += this.width / 20;
         }
         this.ticksExisted++;
     }
@@ -60,11 +60,9 @@ public class TickableSlide implements ITickable {
     public void draw(int mouseX, int mouseY) {
         Gui.drawModalRect(this.x, this.y, this.width, this.height, this.color);
         if(!StringUtils.isNullOrEmpty(this.text)) {
-            Gui.drawString(this.text, this.x + this.width / 5, this.y + this.height / 3, this.textColor);
+            Gui.drawStringWithFont(this.text, this.x + this.width / 5, this.y + this.height / 3, this.textColor, new Font("Serif Bold", Font.BOLD, Gui.DEFAULT_FONT.getSize()));
             //TODO BIG FONTSIZE, TEXT SHADOW
         }
-
-
     }
 
     public void setColor(Color color) {

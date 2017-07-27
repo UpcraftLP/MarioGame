@@ -17,13 +17,14 @@ public class LevelLoader {
 
     private static JsonObject saveFile;
     private static File levelDir;
+    private static List<LevelLocal> offlineLevels;
 
     public static void discoverLevels() {
         saveFile = new JsonObject();
         levelDir = new File(MarioGame.getGameDirectory(), "levels");
         if(!levelDir.exists()) levelDir.mkdirs(); //make sure the file exists to not cause an exception later
         File[] levels = levelDir.listFiles(File::isDirectory);
-        List<LevelLocal> levelList = new ArrayList<>(levels.length);
+        offlineLevels = new ArrayList<>(levels.length);
         for(File levelFile : levels) {
             LevelLocal out = new LevelLocal(new JsonObject());
             File displayImage = new File(levelFile, "icon.png");
@@ -35,8 +36,12 @@ public class LevelLoader {
                     e.printStackTrace(); //TODO error handling
                 }
             }
-            levelList.add(out);
+            offlineLevels.add(out);
         }
         //TODO BufferedImage#getRGB() --> level design
+    }
+
+    public static List<LevelLocal> getOfflineLevels() {
+        return offlineLevels;
     }
 }

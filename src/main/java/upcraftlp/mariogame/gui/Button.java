@@ -1,6 +1,7 @@
 package upcraftlp.mariogame.gui;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * (c)2017 UpcraftLP
@@ -36,6 +37,23 @@ public class Button extends JButton {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public void drawButton(int mouseX, int mouseY) {
+        if(this.isEnabled()) {
+            if(this.isMouseOver(mouseX, mouseY)) {
+                Gui.drawModalRect(this.getX(), this.getY(), this.getWidth(), this.getHeight(), Color.WHITE);
+            }
+            else Gui.drawModalRect(this.getX(), this.getY(), this.getWidth(), this.getHeight(), Color.LIGHT_GRAY);
+        }
+        else {
+            Gui.drawModalRect(this.getX(), this.getY(), this.getWidth(), this.getHeight(), Color.DARK_GRAY);
+        }
+        Gui.drawString(this.getText(), this.getX() + this.getWidth() / 2 - Gui.getStringSize(this.getText()) / 2, this.getY() + this.getHeight() / 2 + Gui.getFontHeight()/4, this.isEnabled() ? Color.DARK_GRAY : Color.LIGHT_GRAY);
+    }
+
+    public boolean isMouseOver(int mouseX, int mouseY) {
+        return mouseX >= this.getX() && mouseX <= this.getX() + this.getWidth() && mouseY >= this.getY() && mouseY <= this.getY() + this.getHeight();
     }
 
     @Override

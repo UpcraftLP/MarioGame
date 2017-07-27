@@ -1,6 +1,5 @@
 package upcraftlp.mariogame.gui;
 
-import com.sun.corba.se.impl.orbutil.graph.Graph;
 import org.apache.logging.log4j.Logger;
 import upcraftlp.mariogame.MarioGame;
 import upcraftlp.mariogame.render.Screen;
@@ -17,6 +16,7 @@ public abstract class Gui {
     protected int width, height;
     private static final Screen DELEGATE = MarioGame.getGame().getRenderEngine().getMainWindow(); //TODO what the hell did I do here??
     protected final Logger log = MarioGame.getGame().getRenderEngine().getLogger();
+    public static final Font DEFAULT_FONT = new JLabel().getFont();
 
     public Gui() {
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -78,12 +78,21 @@ public abstract class Gui {
     public static void drawString(String text, int x, int y, Color c) {
         Graphics g = DELEGATE.getGlassPane().getGraphics();
         g.setColor(c);
-
         String[]split = text.split("\n");
         for (int i = 0; i < split.length; i++) {
             g.drawString(split[i], x, y + getFontHeight() * i);
         }
+    }
 
+    public static void drawStringWithFont(String text, int x, int y, Color c, Font f) {
+        Graphics g = DELEGATE.getGlassPane().getGraphics();
+        g.setColor(c);
+        g.setFont(f);
+        String[]split = text.split("\n");
+        for (int i = 0; i < split.length; i++) {
+            g.drawString(split[i], x, y + getFontHeight() * i);
+        }
+        g.setFont(DEFAULT_FONT);
     }
 
     public static void drawString(String text, int x, int y) {

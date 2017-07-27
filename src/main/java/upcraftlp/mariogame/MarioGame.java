@@ -31,7 +31,6 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
     private final ScreenRenderer renderer;
     private volatile boolean shouldStop = false;
     public GuiScreen currentScreen;
-    public boolean inGameHasFocus = true; //TODO focus!
     private static File gameDirectory;
 
     static {
@@ -118,12 +117,11 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
         }
         else {
             log.error("Program terminated unsuccessfully!");
-            log.error("Error Code: " + exitCode);
+            log.error("Error Code: " + exitCode); //TODO exitcodes for several exceptions
             if(cause != null) {
                 if(cause.getMessage() != null && !cause.getMessage().equals("null")) {
                     log.error("additional crash info: {}", cause.getMessage());
                 }
-                cause.printStackTrace();
             }
         }
         System.exit(exitCode);
@@ -163,7 +161,7 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
-        if(inGameHasFocus) {
+        if(inGameHasFocus()) {
             if(this.currentScreen != null) this.currentScreen.keyTyped(e.getKeyChar(), e.getKeyCode());
             else this.renderer.keyTyped(e.getKeyChar(), e.getKeyCode());
         }
@@ -172,7 +170,7 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if(inGameHasFocus) {
+        if(inGameHasFocus()) {
             if(this.currentScreen != null) this.currentScreen.keyPressed(e.getKeyChar(), e.getKeyCode());
             else this.renderer.keyPressed(e.getKeyChar(), e.getKeyCode());
         }
@@ -181,7 +179,7 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
-        if(inGameHasFocus) {
+        if(inGameHasFocus()) {
             if(this.currentScreen != null) this.currentScreen.keyReleased(e.getKeyChar(), e.getKeyCode());
             else this.renderer.keyReleased(e.getKeyChar(), e.getKeyCode());
         }
@@ -189,15 +187,15 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if(inGameHasFocus) {
+        if(inGameHasFocus()) {
             if(this.currentScreen != null) this.currentScreen.mouseClicked(e.getX(), e.getY(), e.getButton());
             else this.renderer.mouseClicked(e.getX(), e.getY(), e.getButton());
         }
     }
 
     @Override
-    public void mousePressed(MouseEvent e) {
-        if(inGameHasFocus) {
+    public void mousePressed(MouseEvent e) { //TODO window dragging
+        if(inGameHasFocus()) {
             if(this.currentScreen != null) this.currentScreen.mousePressed(e.getX(), e.getY(), e.getButton());
             else this.renderer.mousePressed(e.getX(), e.getY(), e.getButton());
         }
@@ -205,7 +203,7 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        if(inGameHasFocus) {
+        if(inGameHasFocus()) {
             if(this.currentScreen != null) this.currentScreen.mouseReleased(e.getX(), e.getY(), e.getButton());
             else this.renderer.mouseReleased(e.getX(), e.getY(), e.getButton());
         }
@@ -213,14 +211,14 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        if(inGameHasFocus) {
+        if(inGameHasFocus()) {
             //TODO
         }
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        if(inGameHasFocus) {
+        if(inGameHasFocus()) {
             //TODO
         }
     }
@@ -229,16 +227,15 @@ public class MarioGame implements ActionListener, MouseListener, KeyListener {
         return this.log;
     }
 
-    public static void error(String message, String title) {
+    public static void slide(String message) {
         getGame().getRenderEngine().addTickListener(new TickableSlide("Error:\nNot implemented yet!"));
 
         //TODO this is a popup!
         //JOptionPane.showMessageDialog(MarioGame.getGame().getRenderEngine().getMainWindow(), message, title, JOptionPane.ERROR_MESSAGE);
     }
 
-    public static void error(String message) {
-        //TODO no popup, but fancy slide instead!
-        error(message, "Error");
+    public static boolean inGameHasFocus() {
+        return getGame().getRenderEngine().getMainWindow().hasFocus();
     }
 
 }

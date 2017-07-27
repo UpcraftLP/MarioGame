@@ -24,10 +24,10 @@ public class GuiScreen extends Gui implements IKeyListener, IMouseListener {
         super.drawScreen(mouseX, mouseY, partialTicks);
         for(Button button : this.buttonList) {
             if(button.isVisible()) {
-                drawModalRect(button.getX(), button.getY(), button.getWidth(), button.getHeight(), button.isEnabled() ? Color.LIGHT_GRAY : Color.DARK_GRAY);
-                drawString(button.getText(), button.getX() + button.getWidth() / 2 - getStringSize(button.getText()) / 2, button.getY() + button.getHeight() / 2 + getFontHeight()/4, button.isEnabled() ? Color.DARK_GRAY : Color.LIGHT_GRAY);
+                button.drawButton(mouseX, mouseY);
             }
         }
+
     }
 
     @Override
