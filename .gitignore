@@ -8,3 +8,5 @@ gradle/wrapper/gradle-wrapper\.properties
 exportedLibs/
 
 run/
+
+*.iml

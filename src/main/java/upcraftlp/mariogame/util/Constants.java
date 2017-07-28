@@ -5,5 +5,21 @@ package upcraftlp.mariogame.util;
  */
 public class Constants {
 
-    public static final String VERSION = "0.1.0";
+
+   /**DO NOT EDIT BELOW THIS LINE, EVERYTHING ELSE IS CHANGED BY THE GRADLE SCRIPT!**/
+
+   public static final String VERSION;
+   public static final boolean IS_DEV;
+   static {
+      String ver = Constants.class.getPackage().getImplementationVersion();
+      if(ver != null) {
+         VERSION = "v" + ver;
+         IS_DEV = false; //TODO better way?
+      }
+      else {
+         VERSION = "Development Edition";
+         IS_DEV = true;
+      }
+   }
+
 }

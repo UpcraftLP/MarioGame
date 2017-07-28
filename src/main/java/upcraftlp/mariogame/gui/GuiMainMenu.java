@@ -1,5 +1,6 @@
 package upcraftlp.mariogame.gui;
 
+import com.sun.javafx.runtime.SystemProperties;
 import upcraftlp.mariogame.MarioGame;
 import upcraftlp.mariogame.util.Constants;
 
@@ -25,7 +26,7 @@ public class GuiMainMenu extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, int partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
-        drawString("MarioGame v" + Constants.VERSION + "\nCopyright (c) 2017-" + Year.now() + " UpcraftLP", this.width / 100, (int) (this.height * 0.97F), Color.BLACK);
+        drawString("MarioGame " + Constants.VERSION + "\nCopyright (c) 2017-" + Year.now() + " UpcraftLP", this.width / 100, (int) (this.height * 0.97F), Color.BLACK);
     }
 
     @Override
@@ -37,6 +38,7 @@ public class GuiMainMenu extends GuiScreen {
                 break;
             case 1: //options
                 MarioGame.slide("Not implemented yet!");
+                log.error(System.getenv("user.dir"));
                 break;
             case 2: //sp
                 MarioGame.getGame().displayGuiScreen(new GuiSelectWorld(this));

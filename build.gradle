@@ -1,3 +1,6 @@
+plugins {
+    id 'net.researchgate.release' version '2.4.0'
+}
 apply plugin: 'java'
 apply plugin: 'application'
 
@@ -9,16 +12,21 @@ repositories {
     }
 }
 
-
 sourceCompatibility = 1.8
 group 'upcraftlp.mariogame'
 version '1.0-SNAPSHOT'
 archivesBaseName="mariogame"
-mainClassName="upcraftlp.mariogame.MarioGame"
+mainClassName=group + ".MarioGame"
 
-task export(type: Copy) {
-    into "exportedLibs"
-    from configurations.runtime
+release {
+    tagTemplate = 'v${version}'
+    //git {
+    //    requireBranch = 'master'
+    //    pushToRemote = 'origin'
+    //    pushToBranchPrefix = ''
+    //    commitVersionFileOnly = false
+    //    signTag = false
+    //}
 }
 
 dependencies {
@@ -27,14 +35,38 @@ dependencies {
     compile "org.apache.logging.log4j:log4j-core:2.8.2"
     compile "com.google.code.findbugs:jsr305:3.0.2"
     compile "com.google.code.gson:gson:2.8.1"
+}
 
-    jar {
-        jar.dependsOn(export)
-        manifest {
-            attributes(
-                    //'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-                    'Main-Class': 'upcraftlp.mariogame.MarioGame'
-            )
-        }
+task export(type: Copy) {
+    into "$buildDir/exportedLibs"
+    from configurations.runtime
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+jar {
+    build.dependsOn(sourcesJar)
+    build.dependsOn(javadocJar)
+    build.dependsOn(export)
+    manifest {
+        attributes(
+                'Description': 'MarioGame by UpcraftLP',
+                'Implementation-Version': version,
+                'Main-Class': mainClassName,
+                'Class-Path': configurations.compile.collect { "bin/" + it.getName() }.join(' ')
+        )
     }
 }
